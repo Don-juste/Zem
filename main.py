@@ -120,30 +120,27 @@ def creer_compte(user:shemas.AdminCreate,x_admin_key:str=Header(...),db:Session=
     return {"Message":"Compte créé avec succès "}
     
 @app.post("/Zem")
-async   def creer_compte_zem(user:shemas.AdminCreateZem,db:Session=Depends(get_db)):  
-    db_user=db.query(models.Zem).filter(models.Zem.email==user.email).first()
+def creer_compte_zem(
+    user: shemas.AdminCreateZem,
+    db: Session = Depends(get_db)
+):
+    db_user = db.query(models.Zem).filter(models.Zem.email == user.email).first()
     if db_user:
-        logger.warning(f"Email déjà utilisé :{user.email}")
-        raise HTTPException(status_code=400,detail="Email déjà utilisé")
-    mot_de_passe_hashe=hashe_mot_de_passe(user.mot_de_passe)
-    nouvel_zem=models.Zem (
+        raise HTTPException(status_code=400, detail="Email déjà utilisé")
+    
+    mot_de_passe_hashe = hashe_mot_de_passe(user.mot_de_passe)
+    nouvel_zem = models.Zem(
         nom=user.nom,
         prenom=user.prenom,
         email=user.email,
         mot_de_passe=mot_de_passe_hashe,
         type_vehicule=user.type_vehicule,
         role="zem"
-        
-    ) 
+    )
     db.add(nouvel_zem)
     db.commit()
     db.refresh(nouvel_zem)
-    await envoyer_message(
-        user.email,
-        user.mot_de_passe
-    )
-    return {"Message":"Compte créé avec succès"}
-
+    return {"Message": "Compte créé avec succès"}
 
 @app.post("/connexion/{type_utilisateur}")
 @limiter.limit(RATE_LIMIT)
