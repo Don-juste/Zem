@@ -19,6 +19,7 @@ class Zem(Base):
     mot_de_passe=Column(String)
     type_vehicule=Column(Enum(TypeVehicule))
     statut=Column(Enum(StatutZem),default=StatutZem.HORS_LIGNE)
+    photo = Column(String, nullable=True)  
     role=Column(String,default="Zem")
     otp_code=Column(String,nullable=True)
     otp_expiration=Column(DateTime,nullable=True)
