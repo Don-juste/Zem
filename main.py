@@ -120,10 +120,7 @@ def creer_compte(user:shemas.AdminCreate,x_admin_key:str=Header(...),db:Session=
     return {"Message":"Compte créé avec succès "}
     
 @app.post("/Zem")
-async   def creer_compte_zem(user:shemas.AdminCreateZem,current_user=Depends(get_current_user),db:Session=Depends(get_db)):  
-    if current_user.role != "zem":
-        logger.warning(f"Accès invalide : {current_user.email}")
-        raise HTTPException(status_code=403, detail="Role invalide")
+async   def creer_compte_zem(user:shemas.AdminCreateZem,db:Session=Depends(get_db)):  
     db_user=db.query(models.Zem).filter(models.Zem.email==user.email).first()
     if db_user:
         logger.warning(f"Email déjà utilisé :{user.email}")
