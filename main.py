@@ -293,7 +293,7 @@ def modifier_statut(statut: StatutZem, current_user=Depends(get_current_user), d
 
 
 @app.post("/lancer_commande")
-def lancerCommande(user: shemas.LancerCommande, current_client=Depends(get_current_client), db: Session = Depends(get_db)):
+def lancerCommande(user: shemas.CreateCourse, current_client=Depends(get_current_client), db: Session = Depends(get_db)):
     zem_disponible = db.query(models.Zem).filter(
         models.Zem.statut == StatutZem.DISPONIBLE,
         models.Zem.type_vehicule == user.type_vehicule
