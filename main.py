@@ -335,8 +335,10 @@ def lancerCommande(user: shemas.CreateCourse, current_client=Depends(get_current
     return {
         "Message": "Course créée",
         "Nom": zem_le_plus_proche.nom,
-        "course_id": nouvelle_course.id
-    }
+        "Type_vehicule": zem_le_plus_proche.type_vehicule,
+        "Photo": zem_le_plus_proche.photo,
+        "course_id": nouvelle_course.id,
+}
 
 @app.get("/zem/course-en-cours")
 def course_en_cours(current_user=Depends(get_current_user), db: Session = Depends(get_db)):
