@@ -339,6 +339,31 @@ def lancerCommande(user: shemas.CreateCourse, current_client=Depends(get_current
         "course_id": nouvelle_course.id,
         "prix": nouvelle_course.prix
     }
+@app.get("/zem/course-en-cours")
+def course_en_cours(
+    current_user=Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    if current_user.role != "zem":
+        raise HTTPException(status_code=403, detail="Accès réservé aux zems")
+
+    course = db.query(models.Course).filter(
+        models.Course.zem_id == current_user.id,
+        models.Course.statut.in_([StatutCourse.EN_ATTENTE, StatutCourse.EN_COURSE])
+    ).first()
+    
+    if course is None:
+        return {"course": None}
+    
+    return {
+        "course": {
+            "id": course.id,
+            "destination": course.destination,
+            "statut": course.statut,
+            "type_vehicule": course.type_vehicule,
+        }
+    }
+    
 @app.put("/course/{course_id}/annuler")
 def annuler_course(course_id: int, current_client=Depends(get_current_client), db: Session = Depends(get_db)):
     course = db.query(models.Course).filter(models.Course.id == course_id).first()
@@ -397,6 +422,27 @@ def terminer_course(course_id: int, current_user=Depends(get_current_user), db: 
     db.commit()
 
     return {"Message": "Course terminée avec succès"}
+
+@app.get("/zem/historique-courses")
+def historique_courses_zem(current_user=Depends(get_current_user), db: Session = Depends(get_db)):
+    if current_user.role != "zem":
+        raise HTTPException(status_code=403, detail="Accès réservé aux zems")
+
+    courses = db.query(models.Course).filter(
+        models.Course.zem_id == current_user.id,
+        models.Course.statut == StatutCourse.TERMINE
+    ).order_by(models.Course.date_heure.desc()).all()
+
+    return [
+        {
+            "id": c.id,
+            "destination": c.destination,
+            "type_vehicule": c.type_vehicule,
+            "prix": c.prix,
+            "date": c.date_heure
+        }
+        for c in courses
+    ]
 
 
 @app.websocket("/ws/course/{course_id}")
