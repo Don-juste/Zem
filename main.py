@@ -292,14 +292,13 @@ def modifier_statut(statut: StatutZem, current_user=Depends(get_current_user), d
     return {"Message": "Statut mis à jour"}
 
 
-
 @app.post("/lancer_commande")
-def lancerCommande(user: shemas.CreateCourse, current_client=Depends(get_current_client), db: Session = Depends(get_db)):
+def lancerCommande(user: shemas.LancerCommande, current_client=Depends(get_current_client), db: Session = Depends(get_db)):
     zem_disponible = db.query(models.Zem).filter(
         models.Zem.statut == StatutZem.DISPONIBLE,
         models.Zem.type_vehicule == user.type_vehicule
     ).all()
-    
+
     if not zem_disponible:
         raise HTTPException(status_code=404, detail="Aucun zem n'est disponible")
 
@@ -336,14 +335,11 @@ def lancerCommande(user: shemas.CreateCourse, current_client=Depends(get_current
     return {
         "Message": "Course créée",
         "Nom": zem_le_plus_proche.nom,
-        "course_id": nouvelle_course.id,
-        "prix": nouvelle_course.prix
+        "course_id": nouvelle_course.id
     }
+
 @app.get("/zem/course-en-cours")
-def course_en_cours(
-    current_user=Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
+def course_en_cours(current_user=Depends(get_current_user), db: Session = Depends(get_db)):
     if current_user.role != "zem":
         raise HTTPException(status_code=403, detail="Accès réservé aux zems")
 
@@ -351,19 +347,20 @@ def course_en_cours(
         models.Course.zem_id == current_user.id,
         models.Course.statut.in_([StatutCourse.EN_ATTENTE, StatutCourse.EN_COURSE])
     ).first()
-    
+
     if course is None:
         return {"course": None}
-    
+
     return {
         "course": {
             "id": course.id,
             "destination": course.destination,
             "statut": course.statut,
             "type_vehicule": course.type_vehicule,
+            "prix": course.prix
         }
     }
-    
+        
 @app.put("/course/{course_id}/annuler")
 def annuler_course(course_id: int, current_client=Depends(get_current_client), db: Session = Depends(get_db)):
     course = db.query(models.Course).filter(models.Course.id == course_id).first()
