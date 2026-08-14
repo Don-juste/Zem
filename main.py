@@ -24,6 +24,7 @@ from enums import TypeVehicule,StatutCourse,StatutZem
 from mails2 import envoyer_message
 from configuration import fm
 from tarification import calculer_prix
+from notifications import envoyer_notification
 connexions_actives = {}
 logging.basicConfig(
     filename="app.log",
@@ -331,7 +332,12 @@ def lancerCommande(user: shemas.CreateCourse, current_client=Depends(get_current
     zem_le_plus_proche.statut = StatutZem.OCCUPE
     db.commit()
     db.refresh(nouvelle_course)
-
+    
+    envoyer_notification(
+    zem_le_plus_proche.fcm_token,
+    "Nouvelle course !",
+    f"Destination : {user.destination}"
+    )
     return {
         "Message": "Course créée",
         "Nom": zem_le_plus_proche.nom,
@@ -362,6 +368,17 @@ def course_en_cours(current_user=Depends(get_current_user), db: Session = Depend
             "prix": course.prix
         }
     }
+        
+@app.put("/zem/fcm-token")
+def enregistrer_token_fcm(data: shemas.FCMToken, current_user=Depends(get_current_user), db: Session = Depends(get_db)):
+    if current_user.role != "zem":
+        raise HTTPException(status_code=403, detail="Accès réservé aux zems")
+    
+    current_user.fcm_token = data.fcm_token
+    db.commit()
+    
+    return {"Message": "Token FCM enregistré"}
+
         
 @app.put("/course/{course_id}/annuler")
 def annuler_course(course_id: int, current_client=Depends(get_current_client), db: Session = Depends(get_db)):
@@ -514,6 +531,7 @@ async def chat_websocket(websocket: WebSocket, course_id: int, db: Session = Dep
     except WebSocketDisconnect:
         if course_id in connexions_actives and expediteur["type"] in connexions_actives[course_id]:
             del connexions_actives[course_id][expediteur["type"]]
+
     
     
        

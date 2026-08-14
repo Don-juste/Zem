@@ -124,6 +124,9 @@ class RefreshToken(BaseModel):
 class ForgotPassword(BaseModel):
     email:str
 
+class FCMToken(BaseModel):
+    fcm_token:str    
+
 class ResetPassword(BaseModel):
     email:str
     code:str

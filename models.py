@@ -25,6 +25,7 @@ class Zem(Base):
     otp_expiration=Column(DateTime,nullable=True)
     longitude=Column(Float,nullable=True)
     latitude=Column(Float,nullable=True)
+    fcm_token=Column(String,nullable=True)          
     cours=relationship("Course",back_populates="zem")
 
 class Course(Base):
