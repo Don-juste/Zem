@@ -358,10 +358,11 @@ def lancerCommande(user: shemas.CreateCourse, current_client=Depends(get_current
     db.commit()
     db.refresh(nouvelle_course)
     
-    envoyer_notification(
-    zem_le_plus_proche.fcm_token,
-    "Nouvelle course !",
-    f"Destination : {user.destination}"
+    if zem_le_plus_proche.fcm_token:
+        envoyer_notification(
+        zem_le_plus_proche.fcm_token,
+        "Nouvelle course !",
+        f"Destination : {user.destination}"
     )
     return {
         "Message": "Course créée",
