@@ -25,7 +25,11 @@ class AdminCreate(BaseModel):
         if not re.search(r"^(?=.*[A-Z])(?=.*\d)(?=.*[@#!]).{8,}$",mot_de_passe):
             raise ValueError("Mot de passe inavlide")
         return mot_de_passe
-
+    @field_validator("email")
+    def valider_email(cls,email):
+        if not re.search(r"^[a-z][a-z]+\d*@\d*[a-z]+\.[a-z]{2,}$",email):
+            raise ValueError("Email invalide")
+        return email
 class AdminLogin(BaseModel):
     email:str
     mot_de_passe:str
@@ -60,7 +64,12 @@ class AdminCreateZem(BaseModel):
     def valider_mot_de_passe(cls,mot_de_passe):
         if not re.search(r"^(?=.*[A-Z])(?=.*\d)(?=.*[@#!]).{8,}$",mot_de_passe):
             raise ValueError("Mot de passe inavlide")
-        return mot_de_passe      
+        return mot_de_passe   
+    @field_validator("email")
+    def valider_email(cls,email):
+        if not re.search(r"^[a-z][a-z]+\d*@\d*[a-z]+\.[a-z]{2,}$",email):
+            raise ValueError("Email invalide")
+        return email   
 #Zem    
 class ZemLogin(BaseModel):
     email:str
