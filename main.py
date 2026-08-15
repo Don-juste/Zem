@@ -277,7 +277,32 @@ def creer_client(db: Session = Depends(get_db)):
     db.refresh(nouveau_client)
     return {"token": nouveau_client.token}    
 
+@app.get("/course/{course_id}/suivi")
+def suivi_course(
+    course_id: int,
+    current_client=Depends(get_current_client),
+    db: Session = Depends(get_db)
+):
+    course = db.query(models.Course).filter(
+        models.Course.id == course_id,
+        models.Course.client_id == current_client.id
+    ).first()
+    if course is None:
+        raise HTTPException(status_code=404, detail="Course non trouvée")
 
+    zem = db.query(models.Zem).filter(
+        models.Zem.id == course.zem_id
+    ).first()
+    if zem is None:
+        raise HTTPException(status_code=404, detail="Zem introuvable")
+
+    return {
+        "statut": course.statut,
+        "zem_latitude": zem.latitude,
+        "zem_longitude": zem.longitude,
+        "zem_nom": zem.nom,
+    }
+    
 @app.put("/zem/position")
 def mettre_a_jour_position(position: shemas.ZemUpdate, current_user=Depends(get_current_user), db: Session = Depends(get_db)):
     current_user.latitude = position.latitude
