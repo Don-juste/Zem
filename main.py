@@ -391,7 +391,10 @@ def course_en_cours(current_user=Depends(get_current_user), db: Session = Depend
             "destination": course.destination,
             "statut": course.statut,
             "type_vehicule": course.type_vehicule,
-            "prix": course.prix
+            "prix": course.prix,
+            "client_latitude": course.client_latitude,   
+            "client_longitude": course.client_longitude, 
+            
         }
     }
         
