@@ -350,7 +350,10 @@ def lancerCommande(user: shemas.CreateCourse, current_client=Depends(get_current
         statut=StatutCourse.EN_ATTENTE,
         prix=prix,
         client_id=current_client.id,
-        zem_id=zem_le_plus_proche.id
+        zem_id=zem_le_plus_proche.id,
+        client_latitude=user.latitude,
+        client_longitude=user.longitude,
+
     )
 
     db.add(nouvelle_course)
