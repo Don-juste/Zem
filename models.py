@@ -36,6 +36,8 @@ class Course(Base):
     statut=Column(Enum(StatutCourse))
     prix=Column(Float)
     date_heure=Column(DateTime,default=func.now())
+    client_latitude=Column(Float,nullable=True)
+    client_longitude=Column(Float,nullable=True)
     client_id=Column(Integer,ForeignKey("clients.id"))
     zem_id=Column(Integer,ForeignKey("zems.id"))
     zem=relationship("Zem",back_populates="cours")
